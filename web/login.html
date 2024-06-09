@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>登录</title>
+    <link rel="stylesheet" href="../static/libs/particles/css/style.css">
+    <link rel="stylesheet" href="../static/css/base.css">
+    <link rel="stylesheet" href="../static/css/login.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <!-- particles.js container -->
+    <div id="particles-js"></div>
+    <div id="wrapper">
+        <div>
+            <div class="logo-text">智能家居系统</div>
+            <h2>智慧人生，智慧你的家庭</h2>
+        </div>
+        <nav class="switch_nav">
+            <a href="javascript:void(0);" id="switch_login" class="switch_btn on">登录</a>
+            <a href="/register" id="switch_signup" class="switch_btn">注册</a>
+            <div class="switch_bottom" id="switch_bottom"></div>
+        </nav>
+        <div id="login">
+            <form id="login_form">
+                <ul class="group_input">
+                    <li>
+                        <input type="text" class="mobile required" id="user_name" name="username" placeholder="用户名"/>
+                    </li>
+                    <li>
+                        <input type="password" class="psd required" id="psd" name="password" placeholder="密码"/>
+                    </li>
+                </ul>
+                <button type="submit" class="submit_btn" id="btnSubmit">登录</button>
+            </form>
+        </div>
+    </div>
+    <script src="../static/libs/jquery-1.12.4/jquery.min.js"></script>
+    <script src="../static/libs/particles/particles.min.js"></script>
+    <script src="../static/libs/particles/js/app.js"></script>
+    <script src="../static/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(function () {
+            $("#login_form").on("submit", function (e) {
+                e.preventDefault();
+                const username = $("#user_name").val().trim();
+                const password = $("#psd").val().trim();
+                if (!username || !password) {
+                    Swal.fire("错误", "请输入用户名和密码", "error");
+                    return;
+                }
+                $.post("/api/login", { username: username, password: password }, function (data) {
+                    if (data.success) {
+                        Swal.fire("成功", "登录成功", "success").then(() => {
+                            window.location.href = "/";
+                        });
+                    } else {
+                        Swal.fire("错误", data.message, "error");
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    Swal.fire("错误", "登录失败：" + jqXHR.responseText, "error");
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>注册</title>
+    <link rel="stylesheet" href="../static/libs/particles/css/style.css">
+    <link rel="stylesheet" href="../static/libs/sweetalert2/sweetalert2.min.css">
+    <link rel="stylesheet" href="../static/css/base.css">
+    <link rel="stylesheet" href="../static/css/login.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <!-- particles.js container -->
+    <div id="particles-js"></div>
+    <div id="wrapper">
+        <div>
+            <div class="logo-text">智能家居系统</div>
+            <h2>智慧人生，智慧你的家庭</h2>
+        </div>
+        <nav class="switch_nav">
+            <a href="/login" id="switch_login" class="switch_btn">登陆</a>
+            <a href="javascript:void(0);" id="switch_signup" class="switch_btn on">注册</a>
+            <div class="switch_bottom" id="switch_bottom"></div>
+        </nav>
+        <form id="register_form">
+            <ul class="group_input">
+                <li>
+                    <input type="text" placeholder="用户名" class="mobile required" id="user_name" name="username"/>
+                </li>
+                <li>
+                    <input type="password" placeholder="密码(不少于6位)" class="psd required" id="psd" name="password"/>
+                </li>
+            </ul>
+            <button type="submit" class="submit_btn" id="btnSubmit">注册</button>
+        </form>
+    </div>
+    <script src="../static/libs/jquery-1.12.4/jquery.min.js"></script>
+    <script src="../static/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script src="../static/libs/particles/particles.min.js"></script>
+    <script src="../static/libs/particles/js/app.js"></script>
+    <script>
+        $(function () {
+            $("#register_form").on("submit", function (e) {
+                e.preventDefault();
+                const username = $("#user_name").val().trim();
+                const password = $("#psd").val().trim();
+                const regPsd = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+                if (!username || !password) {
+                    Swal.fire("错误", "请输入用户名和密码", "error");
+                    return;
+                }
+                if (!regPsd.test(password)) {
+                    Swal.fire("错误", "密码需包含大写字母、小写字母和数字，且长度不少于6位", "error");
+                    return;
+                }
+
+                $.post("/api/register", { username: username, password: password }, function (data) {
+                    if (data.success) {
+                        Swal.fire("成功", "注册成功", "success").then(() => {
+                            window.location.href = "/login";
+                        });
+                    } else {
+                        Swal.fire("错误", data.message, "error");
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    Swal.fire("错误", "注册失败：" + jqXHR.responseText, "error");
+                });
+            });
+
+            $("form :input").blur(function () {
+                var $parent = $(this).parent();
+                $parent.find(".msg").remove(); //删除以前的提醒元素
+
+                //验证用户名
+                if ($(this).is("#user_name")) {
+                    var nameVal = $.trim(this.value);
+                    if (nameVal == "") {
+                        var errorMsg = " 请输入用户名！";
+                        $parent.append("<span class='msg onError'>" + errorMsg + "</span>");
+                    } else {
+                        var okMsg = " 输入正确";
+                        $parent.append("<span class='msg onSuccess'>" + okMsg + "</span>");
+                    }
+                }
+                //验证密码
+                if ($(this).is("#psd")) {
+                    var psdVal = $.trim(this.value);
+                    var regPsd = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+                    if (psdVal == "" || !regPsd.test(psdVal)) {
+                        var errorMsg = " 密码需包含大写字母、小写字母和数字，且长度不少于6位";
+                        $parent.append("<span class='msg onError'>" + errorMsg + "</span>");
+                    } else {
+                        var okMsg = " 输入正确";
+                        $parent.append("<span class='msg onSuccess'>" + okMsg + "</span>");
+                    }
+                }
+            }).keyup(function () {
+                $(this).triggerHandler("blur");
+            }).focus(function () {
+                $(this).triggerHandler("blur");
+            });
+        });
+    </script>
+</body>
+</html>
