@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="../static/css/base.css">
     <link rel="stylesheet" href="../static/css/login.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <!-- particles.js container -->
@@ -31,6 +38,7 @@
                         <input type="password" class="psd required" id="psd" name="password" placeholder="密码"/>
                     </li>
                 </ul>
+                <div id="error-message" class="error-message" style="display:none;"></div>
                 <button type="submit" class="submit_btn" id="btnSubmit">登录</button>
             </form>
         </div>
@@ -50,15 +58,15 @@
                     return;
                 }
                 $.post("/api/login", { username: username, password: password }, function (data) {
+                    console.log("Response data:", data); // 添加调试日志
                     if (data.success) {
-                        Swal.fire("成功", "登录成功", "success").then(() => {
-                            window.location.href = "/";
-                        });
+                        console.log("Redirecting to:", data.redirect_url); // 添加调试日志
+                        window.location.href = data.redirect_url;
                     } else {
-                        Swal.fire("错误", data.message, "error");
+                        $("#error-message").text(data.message).show();
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
-                    Swal.fire("错误", "登录失败：" + jqXHR.responseText, "error");
+                    $("#error-message").text(jqXHR.responseJSON.detail).show();
                 });
             });
         });

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>设备管理</title>
+    <link rel="stylesheet" href="../static/css/base.css">
+    <link rel="stylesheet" href="../static/css/devices.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/libs/sweetalert2/sweetalert2.min.css">
+</head>
+<body>
+    <div id="wrapper">
+        <div class="header">
+            <div>
+                <div class="logo-text">智能家居系统</div>
+                <h2>设备管理</h2>
+            </div>
+            <div>
+                <button class="connect-btn" id="connect-btn">连接设备</button>
+                <span id="status-dot" class="status-dot"></span>
+            </div>
+        </div>
+        <div id="devices">
+            <!-- 设备列表将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    <script src="../static/libs/jquery-1.12.4/jquery.min.js"></script>
+    <script src="../static/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let ws;
+
+            function setupWebSocket() {
+                ws = new WebSocket(`ws://${window.location.host}/`);
+
+                ws.onopen = function(event) {
+                    console.log('WebSocket connection opened');
+                    $('#status-dot').css('background-color', 'green');
+                };
+
+                ws.onmessage = function(event) {
+                    Swal.fire('消息', event.data, 'info');
+                };
+
+                ws.onerror = function(event) {
+                    console.error('WebSocket error observed:', event);
+                    $('#status-dot').css('background-color', 'red');
+                };
+
+                ws.onclose = function(event) {
+                    console.log('WebSocket connection closed:', event);
+                    $('#status-dot').css('background-color', 'grey');
+                };
+            }
+
+            function connectWebSocket() {
+                if (!ws || ws.readyState === WebSocket.CLOSED) {
+                    setupWebSocket();
+                } else if (ws.readyState === WebSocket.OPEN) {
+                    ws.close();
+                }
+            }
+
+            $('#connect-btn').click(function() {
+                connectWebSocket();
+            });
+
+            $(document).on('change', '.toggle-btn', function() {
+                const deviceId = $(this).data('id');
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ action: 'toggle', device_id: deviceId }));
+                } else {
+                    Swal.fire('错误', '设备未连接', 'error');
+                    // 复位开关状态
+                    $(this).prop('checked', !$(this).prop('checked'));
+                }
+            });
+
+            fetch('/api/devices')
+                .then(response => response.json())
+                .then(data => {
+                    const devicesContainer = $('#devices');
+                    data.forEach(device => {
+                        const deviceElement = $(`
+                            <div class="device">
+                                <h3>${device.name} (${device.type})</h3>
+                                <label class="switch">
+                                    <input type="checkbox" class="toggle-btn" data-id="${device.id}" ${device.status ? 'checked' : ''}>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        `);
+                        devicesContainer.append(deviceElement);
+                    });
+                });
+        });
+    </script>
+</body>
+</html>
