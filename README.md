@@ -49,6 +49,11 @@ cd smart_home
 pip install -r requirements.txt
 ```
 
+初始化数据库
+```
+在数据库执行smart.sql文件
+```
+
 ### 运行项目
 
 使用 FastAPI 启动项目，默认端口是 8062。
@@ -64,3 +69,9 @@ uvicorn main:app --host 127.0.0.1 --port 8062 --reload
 ```
 http://127.0.0.1:8062
 ```
+### 登录
+```
+账号：admin
+密码：Admin123
+```
+
