@@ -51,7 +51,7 @@ pip install -r requirements.txt
 
 初始化数据库
 ```
-在数据库执行smart.sql文件
+在数据库新建smart数据库后，执行smart.sql文件
 ```
 
 ### 运行项目

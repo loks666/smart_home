@@ -1,14 +1,14 @@
+import json
+
+import bcrypt
+import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, create_engine, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-import uvicorn
-import bcrypt
-import json
 
 # 配置数据库
 DATABASE_URL = "mysql+pymysql://root:Lx284190056!@localhost/smart"
@@ -126,7 +126,6 @@ async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)
         print(f"WebSocket 连接断开: {e}")
     except Exception as e:
         print(f"错误: {e}")
-
 
 
 # 运行应用
